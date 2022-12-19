@@ -12,51 +12,37 @@ import random
 from math import log
      
 
-
 def readImage(imageName):
-    im = Image.open(imageName) 
-    pix = im.load()
+    temp_image = Image.open(imageName) 
+    imagePixelData = temp_image.load()
+    imagems = temp_image.size 
+    imagePixelValues = []
     color = 1
-    if type(pix[0,0]) == int:
+    if type(imagePixelData[0,0]) == int:
       color = 0
-    image_size = im.size 
-    image_matrix = []
-    for width in range(int(image_size[0])):
+    for i in range(int(imagems[0])):
         row = []
-        for height in range(int(image_size[1])):
-                row.append((pix[width,height]))
-        image_matrix.append(row)
-    return image_matrix, image_size[0], image_size[1],color
-     
-
-def getImageMatrix_gray(imageName):
-    im = Image.open(imageName).convert('LA')
-    pix = im.load()
-    image_size = im.size 
-    image_matrix = []
-    for width in range(int(image_size[0])):
-        row = []
-        for height in range(int(image_size[1])):
-                row.append((pix[width,height]))
-        image_matrix.append(row)
-    return image_matrix, image_size[0], image_size[1],color
-     
+        for j in range(int(imagems[1])):
+                row.append((imagePixelData[i,j]))
+        imagePixelValues.append(row)
+    return imagePixelValues, imagems[0], imagems[1],color  
 
 
-def dec(bitSequence):
-    decimal = 0
+def CalculateTotalBitValue(bitSequence):
+    value = 0
     for bit in bitSequence:
-        decimal = decimal * 2 + int(bit)
-    return decimal
+        value = value * 2 + int(bit)
+    return value
      
 
-def genHenonMap(dimension, key):
+def genHenonMap(m, key):
+    sequenceSize = m * m * 8 
+    bitSequence = []  
+    byteArray = []  
+    TransformMatrixValues = []
+
     x = key[0]
-    y = key[1]
-    sequenceSize = dimension * dimension * 8 #Total Number of bitSequence produced
-    bitSequence = []    #Each bitSequence contains 8 bits
-    byteArray = []      #Each byteArray contains m( i.e 512 in this case) bitSequence
-    TImageMatrix = []   #Each TImageMatrix contains m*n byteArray( i.e 512 byteArray in this case)
+    y = key[1] 
     for i in range(sequenceSize):
         xN = y + 1 - 1.4 * x**2
         yN = 0.3 * x
@@ -69,98 +55,74 @@ def genHenonMap(dimension, key):
         else:
             bit = 1
 
-        try:
-            bitSequence.append(bit)
-        except:
-            bitSequence = [bit]
+        bitSequence.append(bit)
 
         if i % 8 == 7:
-            decimal = dec(bitSequence)
-            try:
-                byteArray.append(decimal)
-            except:
-                byteArray = [decimal]
+            decimal = CalculateTotalBitValue(bitSequence)
+            byteArray.append(decimal)
             bitSequence = []
 
-        byteArraySize = dimension*8
+        byteArraySize = m*8
+
         if i % byteArraySize == byteArraySize-1:
-            try:
-                TImageMatrix.append(byteArray)
-            except:
-                TImageMatrix = [byteArray]
+            TransformMatrixValues.append(byteArray)
             byteArray = []
-    print("dimensions: ",len(TImageMatrix), len(TImageMatrix[0]))
-    # print(TImageMatrix)
-    return TImageMatrix
+
+    return TransformMatrixValues
      
 
 def HenonEncryption(imageName,key):
-    imageMatrix, dimensionX, dimensionY, color = readImage(imageName)
-    transformationMatrix = genHenonMap(dimensionX, key)
-    resultantMatrix = []
-    for i in range(dimensionX):
-        row = []
-        for j in range(dimensionY):
-            try:
-                if color:
-                    print("here: ",tuple([transformationMatrix[i][j] ^ x for x in imageMatrix[i][j]]))
-                    row.append(tuple([transformationMatrix[i][j] ^ x for x in imageMatrix[i][j]]))
-                else:
-                    row.append(transformationMatrix[i][j] ^ imageMatrix[i][j])
-            except:
-                if color:
-                    row = [tuple([transformationMatrix[i][j] ^ x for x in imageMatrix[i][j]])]
-                else :
-                    row = [transformationMatrix[i][j] ^ x for x in imageMatrix[i][j]]
-        try:    
-            resultantMatrix.append(row)
-        except:
-            resultantMatrix = [row]
-    if color:
-      im = Image.new("RGB", (dimensionX, dimensionY))
-    else: 
-      im = Image.new("L", (dimensionX, dimensionY)) # L is for Black and white pixels
+    imageimagePixelDataelData, m, n, color = readImage(imageName)
+    OutPutImage = []
+    HenonMapMatrix = genHenonMap(m, key)
+    for i in range(m):
+        li = []
+        for j in range(n):
+            if color:
+                #print("here: ",tuple([HenonMapMatrix[i][j] ^ x for x in imageimagePixelDataelData[i][j]]))
+                li.append(tuple([HenonMapMatrix[i][j] ^ x for x in imageimagePixelDataelData[i][j]]))
+            else:
+                li.append(HenonMapMatrix[i][j] ^ imageimagePixelDataelData[i][j])
+    
+        OutPutImage.append(li)
 
-    pix = im.load()
-    for x in range(dimensionX):
-        for y in range(dimensionY):
-            pix[x, y] = resultantMatrix[x][y]
-    im.save(imageName.split('.')[0] + "_HenonEnc.png", "PNG")
+    if color:
+      temp_image = Image.new("RGB", (m, n))
+    else: 
+      temp_image = Image.new("L", (m, n))
+
+    imagePixelData = temp_image.load()
+    for x in range(m):
+        for y in range(n):
+            imagePixelData[x, y] = OutPutImage[x][y]
+    temp_image.save(imageName.split('.')[0] + "_HenonEnc.png", "PNG")
      
 
 def HenonDecryption(imageNameEnc, key):
-    imageMatrix, dimensionX, dimensionY, color = readImage(imageNameEnc)
-    transformationMatrix = genHenonMap(dimensionX, key)
-    pil_im = Image.open(imageNameEnc, 'r')
-    imshow(np.asarray(pil_im))
-    henonDecryptedImage = []
-    for i in range(dimensionX):
-        row = []
-        for j in range(dimensionY):
-            try:
-                if color:
-                    row.append(tuple([transformationMatrix[i][j] ^ x for x in imageMatrix[i][j]]))
-                else:
-                    row.append(transformationMatrix[i][j] ^ imageMatrix[i][j])
-            except:
-                if color:
-                    row = [tuple([transformationMatrix[i][j] ^ x for x in imageMatrix[i][j]])]
-                else :
-                    row = [transformationMatrix[i][j] ^ x for x in imageMatrix[i][j]]
-        try:
-            henonDecryptedImage.append(row)
-        except:
-            henonDecryptedImage = [row]
-    if color:
-        im = Image.new("RGB", (dimensionX, dimensionY))
-    else: 
-        im = Image.new("L", (dimensionX, dimensionY)) # L is for Black and white pixels
+    imageimagePixelDataelData, m, n, color = readImage(imageNameEnc)
+    DecryptedImage = []
+    HenonMapMatrix = genHenonMap(m, key)
 
-    pix = im.load()
-    for x in range(dimensionX):
-        for y in range(dimensionY):
-            pix[x, y] = henonDecryptedImage[x][y]
-    im.save(imageNameEnc.split('_')[0] + "_HenonDec.png", "PNG")
+    for i in range(m):
+        li = []
+        for j in range(n):
+            if color:
+                li.append(tuple([HenonMapMatrix[i][j] ^ x for x in imageimagePixelDataelData[i][j]]))
+            else:
+                li.append(HenonMapMatrix[i][j] ^ imageimagePixelDataelData[i][j])
+
+        DecryptedImage.append(li)
+
+    if color:
+        temp_image = Image.new("RGB", (m, n))
+    else: 
+        temp_image = Image.new("L", (m, n)) # L is for Black and white imagePixelDataels
+
+    imagePixelData = temp_image.load()
+    for x in range(m):
+        for y in range(n):
+            imagePixelData[x, y] = DecryptedImage[x][y]
+    temp_image.save(imageNameEnc.split('_')[0] + "_HenonDec.png", "PNG")
      
 
 cwd_path = os.getcwd()
@@ -179,16 +141,12 @@ img_data = clr_img.load()
 print(type(img_data))
 print(clr_img.size)
 
-
-
-
-HenonEncryption(image + ext, key)
-im = Image.open(image + "_HenonEnc.png", 'r')
-imshow(np.asarray(im))
+HenonEncryption(image_path, key)
+temp_image = Image.open(image + "_HenonEnc.png", 'r')
+imshow(np.asarray(temp_image))
 plt.show()
 
-
 HenonDecryption(image + "_HenonEnc.png", key)
-im = Image.open(image + "_HenonDec.png", 'r')
-imshow(np.asarray(im))
+temp_image = Image.open(image + "_HenonDec.png", 'r')
+imshow(np.asarray(temp_image))
 plt.show()
