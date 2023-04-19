@@ -66,13 +66,12 @@ def decryptImage(imageData, key):
 cwd_path = os.getcwd()
 print("path: ", cwd_path)
 
-image_path = cwd_path+ '/test.png'
-key = 100
+image_path = cwd_path+ '/test_copy.png'
+key = 25
 
 imgclr = readImage(image_path)
 cv2.imshow('image view', imgclr)
 cv2.waitKey(0)
-print(imgclr.shape)
 
 EncryptedImageData = encryptImage(imgclr, key)
 EncryptedWritePath = cwd_path+'/Arnold_Cat_Enc.png'

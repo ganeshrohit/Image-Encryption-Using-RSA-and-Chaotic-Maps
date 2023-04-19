@@ -21,7 +21,6 @@ imgclr_1D = clrimg.ravel()
 
 
 ### GCD Function
-
 def CalculateGcd(i,j):
     temp = i%j
     while(temp != 0):
@@ -40,8 +39,6 @@ totientValue = (p1-1)*(p2-1)
 
 # Initially selecting a value of e between 1 and the totient value
 e = random.randrange(1, totientValue)  
-
-
 #Using GCD to verify if e and totient(phi(n)) are comprime or not
 # If not select a new value of e
 gcdVal = CalculateGcd(e, totientValue)
@@ -85,8 +82,6 @@ for i in range(0, len(ency)):
 decy_img = np.array(dec_clr).reshape(clrimg.shape[0], clrimg.shape[1], clrimg.shape[2])
 imgplot = plt.imshow(decy_img)
 plt.show()
-
-print("here")
 
 
 

@@ -128,8 +128,8 @@ def HenonDecryption(imageNameEnc, key):
 cwd_path = os.getcwd()
 print("path: ", cwd_path)
 
-image_path = cwd_path + '/test.png'
-image = "test"
+image_path = cwd_path + '/test_copy.png'
+image = "test_copy"
 ext = ".png"
 key = (0.1,0.1)
      
