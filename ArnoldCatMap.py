@@ -1,7 +1,3 @@
-"""
-@authors: Ganesh Rohit Basam, Gayathri Ravipati, Laxman Jagarlamudi, Vennela Chava
-"""
-
 import numpy as np
 import os
 import cv2 

@@ -1,7 +1,3 @@
-"""
-@authors: Ganesh Rohit Basam, Gayathri Ravipati, Laxman Jagarlamudi, Vennela Chava
-"""
-
 from PIL import Image
 import random
 import numpy as np
